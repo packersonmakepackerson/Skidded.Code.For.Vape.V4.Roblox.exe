@@ -1,0 +1,56 @@
+runFunction(function()
+    BedTP = GuiLibrary.ObjectsThatCanBeSaved.BlatantWindow.Api.CreateOptionsButton({
+        Name = "bedtp",
+        Function = function(callback)
+            if callback then
+                local lplr = game.Players.LocalPlayer
+                local TweenService = game:GetService("TweenService")
+                local hasTeleported = false
+                function findNearestBed()
+                    local magnitude, bed = (range or math.huge), nil
+                    local beds = collectionService:GetTagged('bed')
+	                if not entityLibrary.isAlive and not lplr.Character.HumanoidRootPart.Position then 
+		                return nil 
+	                end
+                    for i,v in next, beds do 
+			            local localpos = entityLibrary.isAlive and lplr.Character.HumanoidRootPart.Position or Vector3.zero
+			            local bedmagnitude = (localpos - v.Position).Magnitude 
+			            local bedteam = v:GetAttribute('id'):sub(1, 1)
+			            if bedteam == lplr:GetAttribute('Team') then 
+				            continue 
+			            end
+                        
+			            if noshield and v:GetAttribute('BedShieldEndTime') and v:GetAttribute('BedShieldEndTime') > workspace:GetServerTimeNow() then 
+				            continue  
+			            end
+			            if bedmagnitude < magnitude then 
+				            bed = v
+				            magnitude = bedmagnitude
+			            end
+		            end
+                    return bed
+	            end
+                function tweenToNearestBed()
+                    local nearestBed = findNearestBed()
+                    if nearestBed and not hasTeleported then
+                        hasTeleported = true
+
+                        local targetCFrame = nearestBed.CFrame + Vector3.new(0, 20, 0) -- add 5 studs to the Y component of the CFrame Position
+                        local tween = TweenService:Create(lplr.Character.HumanoidRootPart, TweenInfo.new(0.94), {CFrame = targetCFrame})
+                        tween:Play()
+                    end
+                end
+                if bedwarsStore.matchState ~= 0 then
+                    lplr.Character:FindFirstChildOfClass("Humanoid"):ChangeState(Enum.HumanoidStateType.Dead)
+                    lplr.CharacterAdded:Connect(function()
+                        wait(0.3) 
+                        tweenToNearestBed()
+                    end)
+                    hasTeleported = false
+                    BedTP.ToggleButton(false)
+                end
+            end
+        end,
+        ["HoverText"] = "tps u to the nearest bed"
+    })
+end)
