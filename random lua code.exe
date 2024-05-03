@@ -4,5 +4,5 @@ if local then = 6
 end
 if vector 6 then repeat while standing = local player = Local.Player.LocalPlayers.Walkspeed = 16
    wait(3)
-local playet = Local.Players.LocalPlayers.Walkspeex = 5   
+local player = Local.Players.LocalPlayers.Walkspeed = 5   
      
